@@ -1,4 +1,5 @@
 const { response, request } = require('express');//se hace para que vsc pueda intepretar las propiedades del objeto response
+const Usuario = require('../models/usuario');
 
 const usuariosGet = (req = request, res = response) => {
     const {q, nombre = 'NO Name', apikey} = req.query;
@@ -19,12 +20,14 @@ const usuariosPut = (req, res = response) => {
     });
 };
 
-const usuariosPost = (req, res = response) => {
-    const {nombre, edad} = req.body;
+const usuariosPost = async (req, res = response) => {
+    const body = req.body;
+    console.log(body);
+    const usuario = new Usuario(body);
+    await usuario.save();
     res.json({
         msg: 'post API - controlador',
-        nombre,
-        edad
+        usuario
     });
 };
 
