@@ -33,4 +33,10 @@ const UsuarioSchema = Schema({
     }
 });
 
+//debe ser una funcion normal y no de flecha porque vamos a utilizar el this y las funciones flecha mantienen lo que apunta el this fuera de la funcion, y necesitamos que el this apunte a la instancia creada
+UsuarioSchema.methods.toJSON = function () {
+    const {__v, password, ...usuario} = this.toObject();
+    return usuario;
+}
+
 module.exports = model('Usuario', UsuarioSchema);
