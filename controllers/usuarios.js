@@ -3,23 +3,37 @@ const bcryptjs = require('bcryptjs');
 
 const Usuario = require('../models/usuario');
 
-const usuariosGet = (req = request, res = response) => {
-    const {q, nombre = 'NO Name', apikey} = req.query;
+const usuariosGet = async (req = request, res = response) => {
+    const {limite=5, desde=0} = req.query;
+    const query = {estado: true};
+    // TODO validar que desde y limite sean numeros validos  
+    const usuarios = await Usuario.find(query)
+        .skip(Number(desde))
+        .limit(Number(limite));
+
+    const total = await Usuario.countDocuments(query);
 
     res.json({
-        msg: 'get API - controlador',
-        q,
-        nombre, 
-        apikey
+        total,
+        usuarios
     });
 };
 
-const usuariosPut = (req, res = response) => {
+const usuariosPut = async (req, res = response) => {
     const {id} = req.params;
-    res.json({
-        msg: 'put API - controlador',
-        id
+    const {_id, password, google, correo, ...resto} = req.body;
+
+    //TODO Validar que id exista
+    if (password) {
+        const salt = bcryptjs.genSaltSync();
+        resto.password = bcryptjs.hashSync(password, salt);
+    }
+
+    const usuario = await Usuario.findByIdAndUpdate(id, resto, {
+        new: true //porque mongoose obtiene por default retorna el objeto viejo y con este parametro retornaria el nuevo
     });
+    
+    res.json(usuario);
 };
 
 const usuariosPost = async (req, res = response) => {
@@ -28,14 +42,6 @@ const usuariosPost = async (req, res = response) => {
     const {nombre, correo, password, rol} = req.body;
     //console.log(body);
     const usuario = new Usuario({nombre, correo, password, rol});
-
-    // Verificar si el correo existe
-    const existeEmail = await Usuario.findOne({correo});
-    if (existeEmail) {
-        return res.status(400).json({
-            msg: 'Ese correo ya esta registrado'
-        });
-    }
 
     // Encriptar la contraseña
     const salt = bcryptjs.genSaltSync();
