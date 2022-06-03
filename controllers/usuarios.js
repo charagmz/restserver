@@ -7,11 +7,19 @@ const usuariosGet = async (req = request, res = response) => {
     const {limite=5, desde=0} = req.query;
     const query = {estado: true};
     // TODO validar que desde y limite sean numeros validos  
-    const usuarios = await Usuario.find(query)
-        .skip(Number(desde))
-        .limit(Number(limite));
+    //const usuarios = await Usuario.find(query)
+    //    .skip(Number(desde))
+    //    .limit(Number(limite));
+    //const total = await Usuario.countDocuments(query);
 
-    const total = await Usuario.countDocuments(query);
+    //para que las dos consultas se ejecuten de manera asyncrona dado que una no depende de la otra
+    //desestructuracion de arreglos
+    const [total, usuarios] = await Promise.all([
+        Usuario.countDocuments(query),
+        Usuario.find(query)
+            .skip(Number(desde))
+            .limit(Number(limite))
+    ]);
 
     res.json({
         total,
