@@ -8,9 +8,7 @@ const {
     usuariosDelete, 
     usuariosPatch } = require('../controllers/usuarios');
 
-const { validarCampos } = require('../middlewares/validar-campos');
-const { validarJWT } = require('../middlewares/validar-jwt');
-const { esAdminRole, tieneRole } = require('../middlewares/validar-roles');
+const {validarCampos, validarJWT, tieneRole} = require('../middlewares');
 
 const { 
     esRolValido, 
