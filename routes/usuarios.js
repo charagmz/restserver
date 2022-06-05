@@ -7,7 +7,11 @@ const {
     usuariosPost, 
     usuariosDelete, 
     usuariosPatch } = require('../controllers/usuarios');
+
 const { validarCampos } = require('../middlewares/validar-campos');
+const { validarJWT } = require('../middlewares/validar-jwt');
+const { esAdminRole, tieneRole } = require('../middlewares/validar-roles');
+
 const { 
     esRolValido, 
     emailExiste, 
@@ -37,6 +41,10 @@ router.post('/', [
 ], usuariosPost);
 
 router.delete('/:id', [
+    validarJWT,//aqui se envia una referencia a la funcion
+    //esAdminRole,
+    //como se necesitan enviar otros parametros esta funcion debe retornar una funcion que maneje el req,res,next
+    tieneRole('ADMIN_ROLE', 'VENTAS_ROLE'),//En este caso se intenta ejecutar una funcion, por eso esta funcion debe retornar otra funcion
     check('id', 'NO es un ID valido').isMongoId(),
     check('id').custom(existeUsuarioPorId),
     validarCampos
