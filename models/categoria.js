@@ -4,23 +4,24 @@ const { Schema, model } = require('mongoose');
 const CategoriaSchema = Schema({
     nombre: {
         type: String,
-        required: [true, 'El nombre es obligatorio']
-    },
-    correo: {
-        type: String,
-        required: [true, 'El correo es obligatorio'],
+        required: [true, 'El nombre es obligatorio'],
         unique: true
-    },
-    rol: {
-        type: String,
-        required: [true, 'El rol es obligatorio'],
-        //enum: ['ADMIN_ROLE', 'USER_ROLE']
     },
     estado: {
         type: Boolean,
+        required: true,
         default: true
-    }
+    },
+    usuario: {
+        type: Schema.Types.ObjectId,
+        ref: 'Usuario',
+        required: [true, 'El usuario es obligatorio']
+    },
 });
 
+CategoriaSchema.methods.toJSON = function () {
+    const {__v, estado, ...data} = this.toObject();
+    return data;
+}
 
 module.exports = model('Categoria', CategoriaSchema);
