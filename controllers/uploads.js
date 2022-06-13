@@ -17,7 +17,7 @@ const cargarArchivo = async (req, res = response) => {
 
 const actualizarImagen = async (req, res = response) => {
 
-    const {id, coleccion} = req.params
+    const {id, coleccion} = req.params;
     let modelo;
     switch (coleccion) {
         case 'usuarios':
@@ -56,8 +56,50 @@ const actualizarImagen = async (req, res = response) => {
     }
 }
 
+const mostrarImagen = async (req, res = response) => {
+    const {id, coleccion} = req.params;
+    
+    let modelo;
+    switch (coleccion) {
+        case 'usuarios':
+                modelo = await Usuario.findById(id);
+                if (!modelo) {
+                    return res.status(400).json({msg: `No existe un usuario con el id ${id}`});
+                }
+        break;
+        case 'productos':
+                modelo = await Producto.findById(id);
+                if (!modelo) {
+                    return res.status(400).json({msg: `No existe un producto con el id ${id}`});
+                }
+        break;
+    
+        default:
+            return res.status(500).json({msg: 'Coleccion no implementada'});
+    }
+
+    try {
+        // Limpiar imagenes previas
+        if (modelo.img) {
+            const pathImagen = path.join(__dirname, '../uploads', coleccion, modelo.img);
+            if (fs.existsSync(pathImagen)) {
+                return res.sendFile(pathImagen);
+            }
+        }
+
+        const pathImagen = path.join(__dirname, '../assets', 'no-image.jpg');
+        if (fs.existsSync(pathImagen)) {
+            return res.sendFile(pathImagen);
+        }
+
+        return res.json({msg: 'Falta place holder'});
+    } catch (error) {
+        res.status(400).json({error});
+    }
+}
 
 module.exports = {
     cargarArchivo,
-    actualizarImagen
+    actualizarImagen,
+    mostrarImagen,
 }
